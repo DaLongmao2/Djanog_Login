@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>搜索功能</title>
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <script src="{% static 'Table/js/lin_search.js' %}"></script>
+    <script src="{% static 'Table/js/jquery.min.js' %}"></script>
+    <script src="{% static 'Table/js/delete.js' %}"></script>
+</head>
+
+<body>
+{% if request.session.is_login %}
+    <div class="container">
+    <nav class="navbar navbar-default">
+    <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+        <li class="active"><a href="#" onclick="alert('啥都没！！')">Link <span class="sr-only">(current)</span></a></li>
+        <li><a href="#" onclick="alert('啥都没！！')">Link</a></li>
+    </ul>
+    <form class="navbar-form navbar-left">
+        <div class="form-group">
+            <input type="text" class="form-control" id="lin" placeholder="请输入需要搜索的内容">
+        </div>
+    </form>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="">{{ request.session.user_info.username }}</a></li>
+        <li><a href="{% url 'logout' %}">退出</a></li>
+    </ul>
+</div><!-- /.navbar-collapse -->
+</div><!-- /.container-fluid -->
+</nav>
+<form action="" method="post">
+    <table id="table-1" cellspacing='0' border="1" style="text-align: center;" class="table table-striped">
+        <tr>
+            <th>选项</th>
+            <th>邮箱</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>年龄</th>
+            <th>电话</th>
+        </tr>
+        {% for u in user_all %}
+            <tr>
+                <td><input type="checkbox" name="checkboxBtn" value="{{ u.id }}"></td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.username }}</td>
+                <td>
+                    {% if u.gender %}
+                        男
+                    {% else %}
+                        女
+                    {% endif %}
+                </td>
+                <td>{{ u.age }}</td>
+                <td>{{ u.phone }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <input type="checkbox" id="selectAll" name="selectAllBtn"/>全选
+
+    {#        <a class="btn btn-danger" href="{% url 'delete' u.age %}" role="button">删除所选</a>`#}
+    <button class="btn-danger" type="submit">删除</button>
+</form>
+</div>
+{% else %}
+    <div class="container">
+    <nav class="navbar navbar-default">
+    <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+        <li class="active"><a href="#" onclick="alert('啥都没！！')">Link <span class="sr-only">(current)</span></a></li>
+        <li><a href="#" onclick="alert('啥都没！！')">Link</a></li>
+    </ul>
+    <form class="navbar-form navbar-left">
+        <div class="form-group">
+            <input type="text" class="form-control" id="lin" placeholder="请输入需要搜索的内容" disabled>
+        </div>
+    </form>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="{% url 'login' %}">登录</a></li>
+        <li><a href="{% url 'register' %}">注册</a></li>
+    </ul>
+</div><!-- /.navbar-collapse -->
+</div><!-- /.container-fluid -->
+</nav>
+<div class="jumbotron">
+  <h1>Hello, world!</h1>
+  <p>...</p>
+  <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
+</div>
+</div>
+{% endif %}
+<script>
+    var table = document.getElementById("table-1");
+    var input = document.getElementById("lin")
+    input.onkeyup = function () {
+        new Search(table, input)
+    }
+</script>
+<script language="javascript" type="text/javascript">
+    /*
+    *统一设置所有条目的
+    */
+    function setItemCheckBox(flag) {
+        $(":checkbox[name=checkboxBtn]").prop("checked", flag);
+    }
+
+    $(function () {
+        //点击全选
+        $("#selectAll").click(function () {
+            //1.获取全选的状态
+            var flag = this.checked;//获取全选的状态
+            if (flag) {
+                $(this).prop("checked", true);
+            } else {
+                $(this).prop("checked", false);
+            }
+            //var flag = $(":checkbox[name=selectAll]").attr("checked");//jquery-1.5.1的用法
+            //2.让所有条目的复选框与全选的状态同步
+            //alert(flag);
+            setItemCheckBox(flag);
+        });
+        //给所有复选框添加事件
+        $(":checkbox[name=checkboxBtn]").click(function () {
+            var flagV = this.checked;
+            if (flagV) {
+                $(this).prop("checked", true);
+            } else {
+                $(this).prop("checked", false);
+            }
+            //获取所有复选框的个数
+            var len = $(":checkbox[name=checkboxBtn]").length;
+            //获取所有被选中的复选框的个数
+            var checked_len = $(":checkbox[name=checkboxBtn]:checked").length;
+            if (len == checked_len) {
+                //alert("全选中了");
+                $("#selectAll").prop("checked", true);
+            } else if (checked_len == 0) {
+                $("#selectAll").prop("checked", false);
+            } else {
+                $("#selectAll").prop("checked", false);
+            }
+        });
+    });
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+{% if request.session.is_login %}
+    {{ request.session.user_info.email }}
+    <br>
+    <a href="{% url 'logout' %}">退出</a>
+{% else %}
+    <a href="{% url 'login' %}">登录</a>
+    <br>
+    <a href="">注册</a>
+{% endif %}
