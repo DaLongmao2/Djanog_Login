@@ -27,7 +27,23 @@ $(function () {
             check_username = false;
             return false;
         }
-        check_username = true
+
+        $.ajax({
+            type: "post",
+            url: "/repeat_input/",
+            data: {
+                'username': username
+            },
+            dataType: "json",
+            success: function (data) {
+                if (data['code'] == 'yes') {
+                    u.append("用户名已存在！")
+                    check_username = false;
+                } else {
+                    check_username = true;
+                }
+            }
+        });
     });
 
 
@@ -48,7 +64,25 @@ $(function () {
                 return false;
             }
         }
-        check_email = true;
+
+        $.ajax({
+            type: "post",
+            url: "/repeat_input/",
+            data: {
+                'email': email
+            },
+            dataType: "json",
+            success: function (data) {
+                if (data['code'] == 'yes') {
+                    e.append("邮箱已经被注册！")
+                    check_email = false;
+                } else {
+                    check_email = true;
+                }
+            }
+        });
+
+
     });
 
 

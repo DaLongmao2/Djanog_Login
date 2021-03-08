@@ -43,6 +43,8 @@
     </form>
     <ul class="nav navbar-nav navbar-right">
         <li><a href="">{{ request.session.user_info.username }}</a></li>
+        <li><a href="{% url 'reset_pwd' %}">重置密码</a></li>
+        <li><a href="" onclick="alert('空空如也')">个人资料</a></li>
         <li><a href="{% url 'logout' %}">退出</a></li>
     </ul>
 </div><!-- /.navbar-collapse -->

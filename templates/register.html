@@ -61,13 +61,13 @@
 
                         <div class="form-group">
                             {#	                            <div class="main-checkbox">#}
-                            {#	                                <input type="checkbox" id="checkbox1" name="check" {{ check_value }}/>#}
+                            {#	                                <input type="checkbox" id="<c></c>heckbox1" name="check" {{ check_value }}/>#}
                             {#	                                <label for="checkbox1"></label>#}
                             {#	                            </div>#}
                             {#	                            <span class="text">记住我</span>#}
                             <span class="text"><a href="{% url "login" %}">已有账号？去登录</a></span>
                             <span class="text">|</span>
-                            <span class="text"> <a href="">忘记密码？</a></span>
+                            <span class="text"> <a href="" onclick="alert('你有账号吗？就找回！')">忘记密码？</a></span>
                             <button type="button" class="btn btn-default" id="but">立刻注册</button>
                         </div>
 
@@ -82,8 +82,5 @@
         </div>
     </div>
 </div>
-{{ email }}
-{{ password }}
-{{ check_value }}
 </body>
 </html>

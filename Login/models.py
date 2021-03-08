@@ -21,7 +21,7 @@ class User(models.Model):
     gender = models.BooleanField(verbose_name='性别', default=True)
     age = models.IntegerField(verbose_name='年龄', default=18)
     phone = models.CharField(max_length=100, verbose_name='电话', default='+86 999-999-999')
-    bgcolor = models.CharField(max_length=50, verbose_name='背景颜色', default="#6f9388")
+    activation = models.BooleanField(verbose_name='激活', default=False)
     isdelete = models.BooleanField(verbose_name='逻辑删除', default=False)
 
     class Meta:
