@@ -6,10 +6,9 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from Login.models import User, get_token, out_token
+from Login.utils.email import send_email
 from Pro import settings
-from django.core.mail import send_mail
-from Login.models import get_token
-from Login.models import User
 
 
 def check_login(func):
@@ -23,14 +22,42 @@ def check_login(func):
             #   没有登录的用户，跳转刚到登录页面
             return redirect("login")
             # return redirect(reverse('profile', error =  "请先登录"))
-
     return inner
 
 
+
 def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        token = get_token(settings.TOKEN_KEY)
+        t = time.localtime(time.time() + 300)
+
+        text = f"""
+        你好,{username}:
+            效期为5分钟!http://{request.get_host()}/activate/{token}',请在{t[0]}年{t[1]}月{t[2]}日{t[3]}时{t[4]}分{t[5]}秒前激活！
+        """
+        html = f"""
+        <h2>你好,<font color="blue">{username}</font>:</h2>
+        <h3>&nbsp;&nbsp;链接有效期为5分钟! <a href='http://{request.get_host()}/activate/{token}'>点我激活并登录</a></h3>
+        <h4>&nbsp;&nbsp;请在{t[0]}年{t[1]}月{t[2]}日{t[3]}时{t[4]}分{t[5]}秒前激活</h4>
+        <h6>&nbsp;&nbsp;<font color="#8a2be2">如链接过期，请重新注册，返回 <a href=""><font color="red">主页</font></a> | <a href=""><font color="red">注册页面</font></a> </font></h6>
+        """
+        em = send_email("注册激活", html, text, [email])
+        if em:
+            return JsonResponse({'code' : 200})
+        return JsonResponse({'code' : 300})
     return render(request, 'register.html')
 
 
+def activate(request,   token):
+    istoken = out_token(settings.TOKEN_KEY, token)
+    if istoken:
+        return redirect('login')
+    else:
+         return redirect('register')
 
 # @csrf_exempt
 def login(request):
@@ -39,16 +66,8 @@ def login(request):
         password = request.POST.get('password')
         # next_url = request.POST.get('next_url')
         remember_sign = request.POST.get("check")
-
-        print(email, password)
-
         isuser = User.objects.filter(email=email).first()
-
-        print(isuser)
-        print(isuser.password)
-
         if isuser and check_password(password, isuser.password):
-            print('ok')
         # if email == '872039610@qq.com' and password == '123'r:
             request.session['user_info'] = {
                 'email': email,
@@ -58,7 +77,6 @@ def login(request):
             request.session['is_login'] = True
 
             if remember_sign == 'on':
-                print('记住密码')
                 request.session['is_remember'] = True
             else:
                 request.session['is_remember'] = False
@@ -98,7 +116,7 @@ def logout(request):
     return rep
 
 
-# @check_login
+@check_login
 def index(request):
     return render(request, "index.html")
 
@@ -108,46 +126,18 @@ def index2(request):
     if request.method == 'POST':
         box = request.POST.getlist('checkboxBtn')
         for b in box:
-            print(b)
             user = User.objects.get(id=b)
             user.isdelete = True
             user.save()
-        return redirect('index2')
+            return redirect('index2')
     return render(request, 'index2.html', {"user_all" : User.objects.all().filter(isdelete=False)})
 
 
-def test(request, token):
-    pass
-    # User.objects.create(email='872039610@qq.com', password='123456', username='张三')
-    # User.objects.create(email='5772027@qq.com', password='123456', username='李四')
-    # User.objects.create(email='1232143546@qq.com', password='123456', username='王麻子')
-    # User.objects.create(email='1546123477@qq.com', password='123456', username='袁滨心')
-    # return HttpResponse('测试数据添加完成')
-
-
-def delete(request):
-    print('我进来了')
-    print(request.POST.get("checkboxBtn"))
-    # return redirect('index2')
-
-
-def send_email(request):
-    token = get_token(settings.TOKEN_KEY)
-    t = time.localtime(time.time() + 180)
-    text = f"链接有效期为3分钟!<a href='{token}'>点我激活</a>,请在{t[0]}年{t[1]}月{t[2]}日{t[3]}时{t[4]}分{t[5]}秒前激活！"
-    try:
-        send_mail(
-            subject='注册激活链接',
-            message=text,
-            from_email='872039610@qq.com',
-            recipient_list=['872039610@qq.com'],
-            fail_silently=False
-        )
-
-        rep = {'code' : 200}
-    except:
-        rep = {'code' : 300, 'msg' : '发送失败'}
-
-    return JsonResponse(rep)
-
+@check_login
+def test(request):
+    User.objects.create(email='872039610@qq.com', password='123456', username='张三')
+    User.objects.create(email='5772027@qq.com', password='123456', username='李四')
+    User.objects.create(email='1232143546@qq.com', password='123456', username='王麻子')
+    User.objects.create(email='1546123477@qq.com', password='123456', username='袁滨心')
+    return HttpResponse('测试数据添加完成')
 

@@ -1,6 +1,10 @@
 from django.contrib.auth.hashers import make_password
 from django.db import models
 import uuid
+import time
+import base64
+import hmac
+
 
 
 class UUIDTools(object):
@@ -46,9 +50,6 @@ class User(models.Model):
 #
 #     class Meta:
 #         db_table = "LongTime"
-import time
-import base64
-import hmac
 
 def get_token(key, expire=180):
     '''
@@ -70,7 +71,6 @@ def out_token(key, token):
     :param token: 前端传过来的token
     :return: true,false
     '''
-
     # token是前端传过来的token字符串
     try:
         token_str = base64.urlsafe_b64decode(token).decode('utf-8')
@@ -91,3 +91,5 @@ def out_token(key, token):
         return True
     except Exception as e:
         print(e)
+
+
